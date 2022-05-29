@@ -1,5 +1,5 @@
 import requests
-
+import time
 
 def parser(stat, region_id=99, url_vacancies='https://api.hh.ru/vacancies'):
     num = 0
@@ -13,18 +13,14 @@ def parser(stat, region_id=99, url_vacancies='https://api.hh.ru/vacancies'):
         }
         response = requests.get(url_vacancies, params=params).json()
 
-        try:
-            items = response['items']
-        except KeyError:
-            print('ОШИБКА')
-            items = []
-
+        items = response['items']
         if len(items) == 0:
             print('Поиск завершен')
             break
 
         for item in items:  # список словарей   -> текущий словарь
-            requirement = item['snippet']['requirement'].lower()  # словарь требований/ответственности
-            num += stat.find(requirement)  # сбор статистики
+            result = requests.get(item['url']).json()
+            num += stat.find(result['key_skills'])  # сбор статистики
         print(f'Поиск по стрнице {start_page}, обнаружено {num} совпадений')
         start_page += 1
+        # time.sleep(1)  # Задержка
